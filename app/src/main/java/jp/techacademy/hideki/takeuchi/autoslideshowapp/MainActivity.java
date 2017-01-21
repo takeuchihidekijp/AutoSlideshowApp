@@ -123,6 +123,12 @@ public class MainActivity extends AppCompatActivity {
             case PERMISSIONS_REQUEST_CODE:
                 if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     getContentsInfo();
+                }else{
+                    //許可されなかったのでボタンを非表示
+                    mGoButton.setVisibility(View.INVISIBLE);
+                    mBackButton.setVisibility(View.INVISIBLE);
+                    mStopButton.setVisibility(View.INVISIBLE);
+                    mStartButton.setVisibility(View.INVISIBLE);
                 }
                 break;
             default:
@@ -141,32 +147,41 @@ public class MainActivity extends AppCompatActivity {
                 null // ソート (null ソートなし)
         );
 
-        if (position == -1){
-            //カーソルのインデックスは0から始まり、カーソルの数は1から数えるのでー1して合わせる
-            position = cursor.getCount() -1;
-        }
+        if (cursor.getCount() != 0) {
 
-        if (cursor.moveToPosition(position)){
-            int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-            Long id = cursor.getLong(fieldIndex);
-            Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+            if (position == -1) {
+                //カーソルのインデックスは0から始まり、カーソルの数は1から数えるのでー1して合わせる
+                position = cursor.getCount() - 1;
+            }
 
-            ImageView imageVIew = (ImageView) findViewById(R.id.imageView);
-            imageVIew.setImageURI(imageUri);
+            if (cursor.moveToPosition(position)) {
+                int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                Long id = cursor.getLong(fieldIndex);
+                Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
 
+                ImageView imageVIew = (ImageView) findViewById(R.id.imageView);
+                imageVIew.setImageURI(imageUri);
+
+            } else {
+                position = 0;
+                cursor.moveToPosition(position);
+
+                int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
+                Long id = cursor.getLong(fieldIndex);
+                Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
+
+                ImageView imageVIew = (ImageView) findViewById(R.id.imageView);
+                imageVIew.setImageURI(imageUri);
+
+            }
         }else {
-            position = 0;
-            cursor.moveToPosition(position);
-
-            int fieldIndex = cursor.getColumnIndex(MediaStore.Images.Media._ID);
-            Long id = cursor.getLong(fieldIndex);
-            Uri imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id);
-
-            ImageView imageVIew = (ImageView) findViewById(R.id.imageView);
-            imageVIew.setImageURI(imageUri);
-
+            //データがなかったのでボタンを非表示
+            mGoButton.setVisibility(View.INVISIBLE);
+            mBackButton.setVisibility(View.INVISIBLE);
+            mStopButton.setVisibility(View.INVISIBLE);
+            mStartButton.setVisibility(View.INVISIBLE);
+            cursor.close();
         }
-        cursor.close();
     }
 
 
